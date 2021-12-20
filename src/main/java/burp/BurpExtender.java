@@ -2,6 +2,7 @@ package burp;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import com.daimler_tss.log4shell.Utilities;
 import com.daimler_tss.log4shell.logappender.BurpLogAppender;
 import com.daimler_tss.log4shell.scan.Log4ShellScan;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ public class BurpExtender implements IBurpExtender
     @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks)
     {
+        new Utilities(callbacks);
         callbacks.setExtensionName("Offsec Log4Shell (" + getClass().getPackage().getImplementationVersion() + ")");
 
         // configure logging
