@@ -9,11 +9,12 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class Log4ShellScan implements IScannerCheck
 {
-    private static ArrayList<IScanIssue> asyncIssues = new ArrayList<>();
+    private static HashMap<String, ArrayList<IScanIssue>> asyncIssues = new HashMap<>();
     private final Logger logger;
     private IBurpExtenderCallbacks callbacks;
     private ArrayList<String> reportedHosts = new ArrayList<>();
@@ -27,7 +28,9 @@ public class Log4ShellScan implements IScannerCheck
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse iHttpRequestResponse)
     {
-        return asyncIssues;
+        String host = iHttpRequestResponse.getHttpService().getProtocol()+"://"+iHttpRequestResponse.getHttpService().getHost()+":"+iHttpRequestResponse.getHttpService().getPort();
+
+        return asyncIssues.get(host);
     }
 
     @Override
@@ -37,7 +40,7 @@ public class Log4ShellScan implements IScannerCheck
         try {
             String host = iHttpRequestResponse.getHttpService().getProtocol()+"://"+iHttpRequestResponse.getHttpService().getHost()+":"+iHttpRequestResponse.getHttpService().getPort();
             if (reportedHosts.contains(host)) {
-                return asyncIssues;
+                return asyncIssues.get(host);
             }
             IBurpCollaboratorClientContext collab = this.callbacks.createBurpCollaboratorClientContext();
             String collabString = collab.generatePayload(true);
@@ -122,7 +125,10 @@ public class Log4ShellScan implements IScannerCheck
             }
             for (IScanIssue issue : issues) {
                 callbacks.addScanIssue(issue);
-                asyncIssues.add(issue);
+                if (!asyncIssues.containsKey(host)) {
+                    asyncIssues.put(host, new ArrayList<>());
+                }
+                asyncIssues.get(host).add(issue);
             }
 
             return issues;
@@ -144,18 +150,12 @@ public class Log4ShellScan implements IScannerCheck
     {
         logger.info("Found " + interactions.size() + " interactions on " + url + " in " + name);
 
-        Log4ShellIssue issue = new Log4ShellIssue(
+        return new Log4ShellIssue(
             response.getResponse().length == 0 ? new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getPath() + "__burp__") : url,
             iHttpRequestResponse.getHttpService(),
             messages.toArray(new IHttpRequestResponse[0]),
             interactions
         );
-
-        if (response.getResponse().length == 0) {
-            asyncIssues.add(issue);
-            callbacks.addScanIssue(issue);
-        }
-        return issue;
     }
 
     private IHttpRequestResponse request(

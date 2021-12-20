@@ -2,6 +2,7 @@ package burp;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import com.daimler_tss.log4shell.InsertionPointProvider;
 import com.daimler_tss.log4shell.Utilities;
 import com.daimler_tss.log4shell.logappender.BurpLogAppender;
 import com.daimler_tss.log4shell.scan.Log4ShellScan;
@@ -38,5 +39,6 @@ public class BurpExtender implements IBurpExtender
         logger.info("Starting Log4Shell extension");
 
         callbacks.registerScannerCheck(new Log4ShellScan(callbacks, logger));
+        callbacks.registerScannerInsertionPointProvider(new InsertionPointProvider());
     }
 }
